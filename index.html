@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RotaLivre Micro — OlacDev</title>
+  <style>
+    :root { --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #475569; --primary: #0369a1; --border: #cbd5e1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    main { max-width: 780px; margin: 0 auto; padding: 24px 16px 48px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    label { display: flex; gap: 10px; align-items: center; padding: 8px 0; cursor: pointer; }
+    button { background: var(--primary); color: #fff; border: 0; padding: 12px 18px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    footer { text-align: center; padding: 24px 16px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>RotaLivre Micro</h1>
+    <p>Auditor comunitário offline de barreiras urbanas em calçadas e travessias (NBR 9050).</p>
+    <section class="card" id="list"></section>
+    <button id="eval" type="button">Calcular Acessibilidade do Trecho</button>
+    <section id="out" aria-live="polite" style="margin-top:16px;"></section>
+  </main>
+  <footer>Made by <a href="https://olacdev.com/" target="_blank" rel="noopener noreferrer">OlacDev</a></footer>
+  <script type="module">
+    import { BARRIER_TYPES, scoreSegmentAccessibility } from './app.js';
+    const list = document.getElementById('list');
+    list.innerHTML = BARRIER_TYPES.map((b) => `<label><input type="checkbox" value="${b.id}" /> ${b.label} (${b.severity})</label>`).join('');
+    function render() {
+      const checked = [...list.querySelectorAll('input:checked')].map((el) => BARRIER_TYPES.find((b) => b.id === el.value));
+      const r = scoreSegmentAccessibility(checked);
+      document.getElementById('out').innerHTML = `<div class="card"><h2>${r.classification} — ${r.score}/100</h2><p>Passagem em cadeira de rodas: ${r.passableWheelchair ? 'Sim' : 'Não (barreira alta detectada)'}</p></div>`;
+    }
+    document.getElementById('eval').addEventListener('click', render);
+    render();
+  </script>
+</body>
+</html>
